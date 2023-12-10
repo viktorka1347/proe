@@ -49,6 +49,16 @@ class TicketController extends Controller
         return view('client.ticket',[ 'qrCod'=> $qrCod, 'count'=> $count_ticket, 'selected'=> $selected, 'film' => $film, 'hall' => $hall, 'seance'=> $seance, 'dateChosen'=> $dateChosen, 'seats'=> $seats]);
     }
 
+    public function qr(Request $request)
+    {
+        if (trim($request['qrCod']) == '') {
+            return 'data cannot be empty!';
+        }
+        $filename = base_path() . '/phpqrcode/temp/test.png';
+        QRcode::png($request['qrCod'], $filename, 'H', 10);
+        return response()->file($filename);
+    }
+
     /**
      * Show the form for creating a new resource.
      *

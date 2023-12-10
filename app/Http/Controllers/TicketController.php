@@ -17,7 +17,7 @@ use QRcode;
 
 //use QRCode;
 
-require_once base_path() . '\phpqrcode\qrlib.php';
+require_once base_path() . '/phpqrcode/qrlib.php';
 
 class TicketController extends Controller
 {
@@ -35,7 +35,15 @@ class TicketController extends Controller
         $seance = $request['seance'] ?? Seance::all()->where('startSeance', Carbon::now())->first();
         $seatnull= ($seance == null) ? null : Seat::all()->where('seance_id', $seance['id'])->where('hall_id', $hall['id']);
         $seats = $request['seats'] ?? $seatnull;
-        $selected = $request['selected'] ?? [];
+        $selected = '';
+        if ($request['selected']) { // преобразуем строку вида ["1,1","1,2"] в массив
+            $arSelected = explode('","', substr($request['selected'], 2, -2));
+            foreach ($arSelected as $seat) {
+                $arSeat = explode(',', $seat);
+                $selected .= 'ряд ' . $arSeat[0] . ' место ' . $arSeat[1] . ', ';
+            }
+            if (strlen($selected) > 0) $selected = substr($selected, 0, -2);
+        }
         $count_ticket = $request['count'] ?? [];
         $qrCod = $request['qrCod'] ?? [];
         return view('client.ticket',[ 'qrCod'=> $qrCod, 'count'=> $count_ticket, 'selected'=> $selected, 'film' => $film, 'hall' => $hall, 'seance'=> $seance, 'dateChosen'=> $dateChosen, 'seats'=> $seats]);
